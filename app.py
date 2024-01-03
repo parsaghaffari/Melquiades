@@ -46,10 +46,10 @@ def make_mj_api_call(endpoint, data, headers=mj_headers):
     response = requests.post(endpoint, headers=headers, json=data)
     return response.json()
  
-def mj_imagine(prompt):
+def mj_imagine(prompt, stylize=100, chaos=0, weird=0):
     """Generates an image from a prompt"""
     data = {
-        "prompt": prompt[:1900] + " --v 6.0",
+        "prompt": prompt[:1900] + f"--stylize {stylize} --chaos {chaos} --weird {weird} --v 6.0",
         "skip_prompt_check": True
     }
     return make_mj_api_call(IMAGINE_ENDPOINT, data)
@@ -172,13 +172,18 @@ with col2:
 
 with col3:
     """3. **Visualise characters**: Now that you have some character descriptions, visualise them using the button below. This will take a while, so please be patient."""
+    col31, col32, col33 = st.columns(3)
+    
+    with col31: stylize = st.slider("Stylize:", min_value=0, max_value=1000, value=100)
+    with col32: chaos = st.slider("Chaos:", min_value=0, max_value=100, value=0)
+    with col33: weird = st.slider("Weird:", min_value=0, max_value=3000, value=0)
     if st.button("Visualise Characters"):
         if 'Description' in df.columns and df['Description'].notna().any():
             def condition_function(row):
                 return len(row['Description']) > 0
 
             def task_function(row):
-                return mj_imagine(row['Description'])
+                return mj_imagine(row['Description'], stylize, chaos, weird)
 
             def final_callback():
                 df['Reroll'] = False
