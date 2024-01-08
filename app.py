@@ -59,6 +59,13 @@ book_name = st.text_input("Enter the name of the book:", value="One Hundred Year
 book_author = st.text_input("Enter the author of the book:")
 
 st.markdown("## Characters")
+css = """
+.st-emotion-cache-1r6slb0 {
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+"""
+st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns(3)
 
