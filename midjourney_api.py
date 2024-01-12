@@ -1,4 +1,5 @@
 import requests
+import json
 from config import MJ_API_KEY
 
 IMAGINE_ENDPOINT = "https://api.midjourneyapi.xyz/mj/v2/imagine"
@@ -11,14 +12,23 @@ mj_headers = {
     "X-API-KEY": MJ_API_KEY
 }
 
-def get_mj_prompt(character, book_name, character_description):
+def get_mj_prompt(type, thing, book_name, description):
     """Generates a prompt for Midjourney"""
-    return f"Square portrait of {character} from {book_name}. Painting style. Detailed and realistic. Fine detailed textures of the skin and clothing. Strong interplay of light and shadow. {character_description}"
+    if type == "characters":
+        return f"Square portrait of {thing} from {book_name}. Painting style. Detailed and realistic. Fine detailed textures of the skin and clothing. Strong interplay of light and shadow. {description}"
+    elif type == "places":
+        return f"A portrait of {thing} from {book_name}. Painting style. Detailed and realistic. Fine detailed textures. Strong interplay of light and shadow. {description}"
+    elif type == "events":
+        return f"A portrait of {thing} from {book_name}. Painting style. Detailed and realistic. Fine detailed textures. Strong interplay of light and shadow. {description}"
 
 def make_mj_api_call(endpoint, data, headers=mj_headers):
     """Generic function to make an API call to Midjourney"""
-    response = requests.post(endpoint, headers=headers, json=data)
-    return response.json()
+    try:
+        response = requests.post(endpoint, headers=headers, json=data)
+        return response.json()
+    except json.JSONDecodeError:
+        print(f"JSONDecodeError: {response.text}")
+        return {"status": "failed", "message": "JSONDecodeError", "task_id": None}
  
 def mj_imagine(prompt, stylize=100, chaos=0, weird=0):
     """Generates an image from a prompt"""

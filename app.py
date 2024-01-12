@@ -52,13 +52,12 @@ if 'df' in st.session_state:
 else:
     df = pd.DataFrame()
 
-st.set_page_config(layout="wide", page_icon="🧙‍♂️", page_title="Melquíades - Novel Character Visualiser")
-st.title("🧙🏽‍♂️ Melquíades - Novel Character Visualiser")
+st.set_page_config(layout="wide", page_icon="🧙‍♂️", page_title="Melquíades - Novel Visualiser")
+st.title("🧙🏽‍♂️ Melquíades - Novel Visualiser")
 
 book_name = st.text_input("Enter the name of the book:", value="One Hundred Years of Solitude")
 book_author = st.text_input("Enter the author of the book:")
 
-st.markdown("## Characters")
 css = """
 .st-emotion-cache-1r6slb0 {
     border: 1px solid #ccc;
@@ -68,48 +67,49 @@ css = """
 st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns(3)
-
+ 
 with col1:
-    """1. **Fetch characters**: Start by fetching some characters from the book. Select a number using the slider below, and click on 'Fetch Characters'.
+    f"""1. **Fetch things**: Start by fetching some things (characters, places, or events) from the book. Select a number using the slider below, and click on 'Fetch character/place/event'.
     
-    Note: You can also edit the characters in the table below. You can change their names, or add/remove characters.
+    Note: You can also edit the things in the table below. You can change their names, or add/remove things.
     """
-    num_characters = st.slider("Select the number of characters to fetch:", min_value=1, max_value=30, value=5)
-    if st.button("Fetch Characters"):
+    vis_mode = st.selectbox('What shall we visualise?', ('characters', 'places', 'events'))
+    num_things = st.slider(f"Select the number of {vis_mode} to fetch:", min_value=1, max_value=30, value=5)
+    if st.button(f"Fetch {vis_mode}"):
         clear_cache()
-        characters = get_characters(book_name, book_author, num_characters)
+        things = get_things(vis_mode, book_name, book_author, num_things)
         df = pd.DataFrame()
-        df['Character'] = characters
+        df['Things'] = things
         st.session_state['df'] = df
     
 with col2:
-    """2. **Describe characters**: Now that you have some characters, describe them using the button below.
+    f"""2. **Describe {vis_mode}**: Now that you have some {vis_mode}, describe them using the button below.
     
     Note: You can also edit the descriptions in the table below."""
-    if st.button("Describe Characters"):
-        if 'Character' in df.columns and df['Character'].notna().any():
-            progress = st.progress(0.0, text="Describing characters")
-            characters = df['Character']
+    if st.button(f"Describe {vis_mode}"):
+        if 'Things' in df.columns and df['Things'].notna().any():
+            progress = st.progress(0.0, text=f"Describing {vis_mode}")
+            things = df['Things']
             descriptions = []
-            for i, character in enumerate(characters):
-                progress.progress(max(0.01, i/len(characters)), text=f"Describing character {i+1} out of {len(characters)} ({character})")
-                description = get_character_description(character, book_name, book_author).variables['DESCRIPTION']
-                prompt = get_mj_prompt(character, book_name, description)
+            for i, thing in enumerate(things):
+                progress.progress(max(0.01, i/len(things)), text=f"Describing {vis_mode} {i+1} out of {len(things)} ({thing})")
+                description = get_thing_description(vis_mode, thing, book_name, book_author).variables['DESCRIPTION']
+                prompt = get_mj_prompt(vis_mode, thing, book_name, description)
                 descriptions.append(prompt)
             progress.empty()
             df['Description'] = descriptions
             st.session_state['df'] = df
         else:
-            st.error("Please fetch characters first.")
+            st.error("Please fetch some things first!")
 
 with col3:
-    """3. **Visualise characters**: Now that you have some character descriptions, visualise them using the button below. This will take a while, so please be patient."""
+    f"""3. **Visualise {vis_mode}**: Now that you have some descriptions for your {vis_mode}, visualise them using the button below. This will take a while, so please be patient."""
     col31, col32, col33 = st.columns(3)
     
     with col31: stylize = st.slider("Stylize:", min_value=0, max_value=1000, value=100)
     with col32: chaos = st.slider("Chaos:", min_value=0, max_value=100, value=0)
     with col33: weird = st.slider("Weird:", min_value=0, max_value=3000, value=0)
-    if st.button("Visualise Characters"):
+    if st.button(f"Visualise {vis_mode}"):
         if 'Description' in df.columns and df['Description'].notna().any():
             def condition_function(row):
                 return len(row['Description']) > 0
@@ -122,14 +122,14 @@ with col3:
                 df['Upscale'] = "None"
                 df['Variate'] = "None"
 
-            process_tasks(df, condition_function, task_function, final_callback,  "Visualising characters")
+            process_tasks(df, condition_function, task_function, final_callback,  f"Visualising {vis_mode}")
         else:
-            st.error("Please describe characters first.")
+            st.error(f"Please describe {vis_mode} first.")
 
 col4, col5, col6 = st.columns(3)
 
 with col4:
-    """4. **Reroll selected**: If you don't like the visualisation of a character, you can reroll it using the button below. Tick the box next to the characters you want to reroll, and click on 'Reroll selected'. The results will appear in the 'Img URL' column."""
+    """4. **Reroll selected**: If you don't like the visualisations, you can regenerate them using the button below. Tick the box next to the items you want to reroll, and click on 'Reroll selected'. The results will appear in the 'Img URL' column."""
     if st.button("Reroll selected"):
         def condition_function(row):
             return row['Reroll'] and row['Task ID'] != ""
@@ -140,10 +140,10 @@ with col4:
         def final_callback():
             df['Reroll'] = False
 
-        process_tasks(df, condition_function, task_function, final_callback, "Rerolling characters")
+        process_tasks(df, condition_function, task_function, final_callback, f"Rerolling {vis_mode}")
     
 with col5:
-    """5. **Upscale selected**: If you want to see a higher resolution version of the visualisation of a character, you can upscale it using the button below. Select the index of the image you want to upscale (1/2/3/4), and click on 'Upscale selected'. The results will appear in the 'Upscale Img URL' column."""
+    """5. **Upscale selected**: If you want to see a higher resolution and singular version of a visualisation, you can upscale it using the button below. Select the index of the image you want to upscale (1/2/3/4), and click on 'Upscale selected'. The results will appear in the 'Upscale Img URL' column."""
     if st.button("Upscale selected"): 
         def condition_function(row):
             return row['Upscale'] != "None" and not pd.isna(row['Upscale'])
@@ -155,10 +155,10 @@ with col5:
             df['Upscale'] = "None"
 
         process_tasks(df, condition_function, task_function, final_callback, 
-                      "Upscaling characters", 'Upscale Processing Status', 'Upscale Img URL', False)
+                      f"Upscaling {vis_mode}", 'Upscale Processing Status', 'Upscale Img URL', False)
 
 with col6:
-    """6. **Variate selected**: If you want to see a variation of the visualisation of a character, you can variate it using the button below. Select the index of the image you want to variate (1/2/3/4), and click on 'Variate selected'. The results will appear in the 'Img URL' column."""
+    """6. **Variate selected**: If you want to see a variation of the visualisation, you can variate it using the button below. Select the index of the image you want to variate (1/2/3/4), and click on 'Variate selected'. The results will appear in the 'Img URL' column."""
     if st.button("Variate selected"):
         def condition_function(row):
             return row['Variate'] != "None" and not pd.isna(row['Variate'])
@@ -169,7 +169,7 @@ with col6:
         def final_callback():
             df['Variate'] = "None"
 
-        process_tasks(df, condition_function, task_function, final_callback, "Variating characters")
+        process_tasks(df, condition_function, task_function, final_callback, f"Variating {vis_mode}")
 
 if 'df' in globals() and not df.empty:
     """### Results"""
