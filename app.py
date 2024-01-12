@@ -109,13 +109,14 @@ with col3:
     with col31: stylize = st.slider("Stylize:", min_value=0, max_value=1000, value=100)
     with col32: chaos = st.slider("Chaos:", min_value=0, max_value=100, value=0)
     with col33: weird = st.slider("Weird:", min_value=0, max_value=3000, value=0)
+    aspect_ratio = st.selectbox('Aspect ratio:', ('1:1', '5:4', '7:4'))
     if st.button(f"Visualise {vis_mode}"):
         if 'Description' in df.columns and df['Description'].notna().any():
             def condition_function(row):
                 return len(row['Description']) > 0
 
             def task_function(row):
-                return mj_imagine(row['Description'], stylize, chaos, weird)
+                return mj_imagine(row['Description'], stylize, chaos, weird, aspect_ratio)
 
             def final_callback():
                 df['Reroll'] = False

@@ -30,10 +30,10 @@ def make_mj_api_call(endpoint, data, headers=mj_headers):
         print(f"JSONDecodeError: {response.text}")
         return {"status": "failed", "message": "JSONDecodeError", "task_id": None}
  
-def mj_imagine(prompt, stylize=100, chaos=0, weird=0):
+def mj_imagine(prompt, stylize=100, chaos=0, weird=0, aspect_ratio="1:1"):
     """Generates an image from a prompt"""
     data = {
-        "prompt": prompt[:1900] + f"--stylize {stylize} --chaos {chaos} --weird {weird} --v 6.0",
+        "prompt": prompt[:1900] + f"--stylize {stylize} --chaos {chaos} --weird {weird} --v 6.0 --ar {aspect_ratio}",
         "skip_prompt_check": True
     }
     return make_mj_api_call(IMAGINE_ENDPOINT, data)
