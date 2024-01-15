@@ -33,7 +33,7 @@ def make_mj_api_call(endpoint, data, headers=mj_headers):
 def mj_imagine(prompt, stylize=100, chaos=0, weird=0, aspect_ratio="1:1"):
     """Generates an image from a prompt"""
     data = {
-        "prompt": prompt[:1900] + f"--stylize {stylize} --chaos {chaos} --weird {weird} --v 6.0 --ar {aspect_ratio}",
+        "prompt": prompt[:1900] + f" --stylize {stylize} --chaos {chaos} --weird {weird} --v 6.0 --ar {aspect_ratio}",
         "skip_prompt_check": True
     }
     return make_mj_api_call(IMAGINE_ENDPOINT, data)
