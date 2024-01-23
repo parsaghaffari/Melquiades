@@ -37,17 +37,17 @@ def get_thing_description(type, thing, book, author):
 @lmql.query(model="gpt-4")
 def get_character_description(character, book, author):
     '''lmql
-    """Here's an accurate and concise visual description of {character} from {book} by {author} which can be used to paint their portrait, broken down into face, hair, expression, attire, accessories, and background: [DESCRIPTION]"""
+    """Here's an accurate and concise visual description of {character} from {book} by {author} which can be used to paint their portrait, broken down into face, hair, expression, attire, accessories, and background (don't use the words 'thick' or 'tied up' or 'bare' or 'bathing'): [DESCRIPTION]"""
     '''
     
 @lmql.query(model="gpt-4")
 def get_place_description(place, book, author):
     '''lmql
-    """Here's an accurate and concise visual description of the place "{place}" from {book} by {author} which can be used as instructions for a painter to paint it with a high level of accuracy and detail. Break down the instructions into meaningful headings (such as visible buildings, background, characters, etc): [DESCRIPTION]"""
+    """Here's an accurate and concise visual description of the place "{place}" from {book} by {author} which can be used as instructions for a painter to paint it with a high level of accuracy and detail. Break down the instructions into meaningful headings (such as visible buildings, background, characters, etc) (don't use the words 'thick' or 'tied up' or 'bare' or 'bathing'): [DESCRIPTION]"""
     '''
     
 @lmql.query(model="gpt-4")
 def get_event_description(event, book, author):
     '''lmql
-    """Here's an accurate and concise visual description of the scene "{event}" from {book} by {author} which can be used as instructions for a painter to paint it with a high level of accuracy and detail. Break down the instructions into meaningful headings (such as characters, their facial expressions, prominent landmarks, etc): [DESCRIPTION]"""
+    """Here's an accurate and concise visual description of the scene "{event}" from {book} by {author} which can be used as instructions for a painter to paint it with a high level of accuracy and detail. Break down the instructions into meaningful headings (such as characters, their facial expressions, prominent landmarks, etc) (don't use the words 'thick' or 'tied up' or 'bare' or 'bathing'): [DESCRIPTION]"""
     '''
