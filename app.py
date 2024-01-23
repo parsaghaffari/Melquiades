@@ -19,8 +19,13 @@ def process_tasks(df, condition_function, task_function, callback,
             task = task_function(row)
             tasks.append(task)
             if update_task_id:
-                df.loc[i, 'Submission Status'] = f"{task['status']} - {task['message']}" if len(task['message']) > 0 else task['status']
-                df.loc[i, 'Task ID'] = task['task_id']
+                if 'status' in task:
+                    df.loc[i, 'Submission Status'] = f"{task['status']} - {task['message']}" if len(task['message']) > 0 else task['status']
+                    df.loc[i, 'Task ID'] = task['task_id']
+                else:
+                    st.info(json.dumps(task, indent=4))
+                    df.loc[i, 'Submission Status'] = "failed - no status"
+                    df.loc[i, 'Task ID'] = ""
         else:
             tasks.append(None)
 
@@ -28,7 +33,7 @@ def process_tasks(df, condition_function, task_function, callback,
         progress = st.progress(0.0, text=progress_text)
         while True:
             for i, task in enumerate(tasks):
-                if task is not None and task['status'] == "success":
+                if task is not None and 'status' in task and task['status'] == "success":
                     pstatus = mj_fetch(task['task_id'])
                     df.loc[i, result_status_col] = pstatus['status']
                     df.loc[i, result_url_col] = pstatus['task_result']['image_url']
